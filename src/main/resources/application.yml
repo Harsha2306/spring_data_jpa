@@ -1,0 +1,27 @@
+spring:
+    application:
+        name: test
+    main:
+        banner-mode: off
+    datasource:
+        url: jdbc:mysql://localhost:3306/harsha
+        username: springstudent
+        password: springstudent
+        driver-class-name: com.mysql.cj.jdbc.Driver
+
+jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+        ddl-auto: update
+    show-sql: true
+
+management:
+    endpoints:
+        web:
+            exposure:
+                include: "*"
+    endpoint:
+        health:
+            show-details: always
+        info:
+            enabled: true
