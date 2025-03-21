@@ -3,6 +3,7 @@ package com.harsha.test.service;
 import com.harsha.test.dto.UserRequestDto;
 import com.harsha.test.dto.UserResponseDto;
 import com.harsha.test.entity.User;
+import com.harsha.test.exceptions.UserNotFoundException;
 import com.harsha.test.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,11 +23,11 @@ public class UserService {
     return userRepository.findAll().stream().map(this::mapToUserResponseDto).toList();
   }
 
-  // TODO handle no id found using exception
   public UserResponseDto getUserById(Long id) {
-    Optional<User> optionalUser = userRepository.findById(id);
-    if (optionalUser.isEmpty()) {}
-    return mapToUserResponseDto(optionalUser.get());
+    return userRepository
+        .findById(id)
+        .map(this::mapToUserResponseDto)
+        .orElseThrow(() -> new UserNotFoundException("user not found with id: " + id));
   }
 
   public UserResponseDto mapToUserResponseDto(User user) {
@@ -38,18 +38,25 @@ public class UserService {
         .build();
   }
 
-  public void createUser(UserRequestDto userRequestDto) {
+  public UserResponseDto createUser(UserRequestDto userRequestDto) {
     User user =
         User.builder()
             .email(userRequestDto.getEmail())
             .userName(userRequestDto.getUserName())
             .build();
     User savedUser = userRepository.save(user);
-    log.info("user with id {} saved", savedUser.getId());
+    logInfoWithId(savedUser.getId(), "saved");
+    return mapToUserResponseDto(savedUser);
   }
 
-  // TODO handle no id found using exception and put, patch
-  public void deleteUser(Long id) {
+  public void deleteUserById(Long id) {
+    if (!userRepository.existsById(id))
+      throw new UserNotFoundException("user not found with id: " + id);
     userRepository.deleteById(id);
+    logInfoWithId(id, "deleted");
+  }
+
+  public void logInfoWithId(Long id, String operation) {
+    log.info("user with id {} {} successfully", id, operation);
   }
 }
