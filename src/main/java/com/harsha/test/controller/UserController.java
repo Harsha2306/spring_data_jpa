@@ -1,5 +1,6 @@
 package com.harsha.test.controller;
 
+import com.harsha.test.dto.PaginatedResponseDto;
 import com.harsha.test.dto.UserRequestDto;
 import com.harsha.test.dto.UserResponseDto;
 import com.harsha.test.service.UserService;
@@ -19,9 +20,19 @@ public class UserController {
   private final UserService userService;
 
   @GetMapping
-  public ResponseEntity<List<UserResponseDto>> getAllUsers() {
+  public ResponseEntity<List<UserResponseDto>> getUsers() {
     List<UserResponseDto> users = userService.getAllUsers();
     return ResponseEntity.status(HttpStatus.OK).body(users);
+  }
+
+  @GetMapping("criteria")
+  public ResponseEntity<PaginatedResponseDto<UserResponseDto>> getUsersByCriteria(
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int pageSize,
+      @RequestParam(defaultValue = "id") String sortBy,
+      @RequestParam(defaultValue = "asc") String sortOrder) {
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(userService.getUsersByCriteria(page, pageSize, sortBy, sortOrder));
   }
 
   @GetMapping("{id}")
