@@ -1,6 +1,5 @@
 package com.harsha.test.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.harsha.test.dto.UserRequestDto;
 import com.harsha.test.dto.UserResponseDto;
 import com.harsha.test.entity.User;
