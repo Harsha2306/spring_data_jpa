@@ -21,7 +21,6 @@ import java.util.List;
 @Transactional
 public class UserService {
   private final UserRepository userRepository;
-  private final ObjectMapper objectMapper = new ObjectMapper();
 
   public List<UserResponseDto> getAllUsers() {
     return userRepository.findAll().stream().map(this::mapToUserResponseDto).toList();
