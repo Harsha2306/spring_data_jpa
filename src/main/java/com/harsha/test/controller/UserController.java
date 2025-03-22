@@ -14,23 +14,23 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api")
+@RequestMapping("api/users")
 public class UserController {
   private final UserService userService;
 
-  @GetMapping("users")
+  @GetMapping
   public ResponseEntity<List<UserResponseDto>> getAllUsers() {
     List<UserResponseDto> users = userService.getAllUsers();
     return ResponseEntity.status(HttpStatus.OK).body(users);
   }
 
-  @GetMapping("users/{id}")
+  @GetMapping("{id}")
   public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
     UserResponseDto userResponseDto = userService.getUserById(id);
     return ResponseEntity.status(HttpStatus.OK).body(userResponseDto);
   }
 
-  @PostMapping("users")
+  @PostMapping
   public ResponseEntity<UserResponseDto> createUser(@RequestBody UserRequestDto userRequestDto) {
     UserResponseDto savedUser = userService.createUser(userRequestDto);
     URI uri =
@@ -41,7 +41,14 @@ public class UserController {
     return ResponseEntity.created(uri).body(savedUser);
   }
 
-  @DeleteMapping("users/{id}")
+  @PutMapping("{id}")
+  public ResponseEntity<UserResponseDto> updateUser(
+      @PathVariable Long id, @RequestBody UserRequestDto userRequestDto) {
+    UserResponseDto updatedUser = userService.updateUser(id, userRequestDto);
+    return ResponseEntity.ok(updatedUser);
+  }
+
+  @DeleteMapping("{id}")
   public ResponseEntity<Void> deleteUserById(@PathVariable Long id) {
     userService.deleteUserById(id);
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

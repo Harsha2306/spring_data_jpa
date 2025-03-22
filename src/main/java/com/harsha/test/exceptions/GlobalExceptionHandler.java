@@ -15,6 +15,12 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
   }
 
+  @ExceptionHandler(IllegalValueException.class)
+  public ResponseEntity<ErrorResponseDto> handleIllegalValueException(IllegalValueException ex) {
+    ErrorResponseDto error = new ErrorResponseDto(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+  }
+
   @ExceptionHandler(GenericException.class)
   public ResponseEntity<ErrorResponseDto> handleGenericException(GenericException ex) {
     ErrorResponseDto error = new ErrorResponseDto(HttpStatus.NOT_FOUND.value(), ex.getMessage());

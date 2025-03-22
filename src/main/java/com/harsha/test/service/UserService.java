@@ -1,10 +1,13 @@
 package com.harsha.test.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.harsha.test.dto.UserRequestDto;
 import com.harsha.test.dto.UserResponseDto;
 import com.harsha.test.entity.User;
+import com.harsha.test.exceptions.IllegalValueException;
 import com.harsha.test.exceptions.UserNotFoundException;
 import com.harsha.test.repository.UserRepository;
+import com.harsha.test.utils.Constants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,6 +21,7 @@ import java.util.List;
 @Transactional
 public class UserService {
   private final UserRepository userRepository;
+  private final ObjectMapper objectMapper = new ObjectMapper();
 
   public List<UserResponseDto> getAllUsers() {
     return userRepository.findAll().stream().map(this::mapToUserResponseDto).toList();
@@ -27,7 +31,7 @@ public class UserService {
     return userRepository
         .findById(id)
         .map(this::mapToUserResponseDto)
-        .orElseThrow(() -> new UserNotFoundException("user not found with id: " + id));
+        .orElseThrow(() -> new UserNotFoundException(Constants.USER_NOT_FOUND + id));
   }
 
   public UserResponseDto mapToUserResponseDto(User user) {
@@ -49,9 +53,22 @@ public class UserService {
     return mapToUserResponseDto(savedUser);
   }
 
+  public UserResponseDto updateUser(Long id, UserRequestDto userRequestDto) {
+    if (id == null) throw new IllegalValueException("id cannot be null");
+    User user =
+        userRepository
+            .findById(id)
+            .orElseThrow(() -> new UserNotFoundException(Constants.USER_NOT_FOUND + id));
+    if (userRequestDto.getUserName() != null) user.setUserName(userRequestDto.getUserName());
+    if (userRequestDto.getEmail() != null) user.setEmail(userRequestDto.getEmail());
+    User updatedUser = userRepository.save(user);
+    logInfoWithId(updatedUser.getId(), "updated");
+    return mapToUserResponseDto(updatedUser);
+  }
+
   public void deleteUserById(Long id) {
     if (!userRepository.existsById(id))
-      throw new UserNotFoundException("user not found with id: " + id);
+      throw new UserNotFoundException(Constants.USER_NOT_FOUND + id);
     userRepository.deleteById(id);
     logInfoWithId(id, "deleted");
   }
