@@ -29,7 +29,7 @@ public class UserService {
     return userRepository
         .findById(id)
         .map(this::mapToUserResponseDto)
-        .orElseThrow(() -> new UserNotFoundException(Constants.USER_NOT_FOUND + id));
+        .orElseThrow(() -> new UserNotFoundException(Constants.USER_NOT_FOUND_WITH_ID + id));
   }
 
   public UserResponseDto mapToUserResponseDto(User user) {
@@ -56,7 +56,7 @@ public class UserService {
     User user =
         userRepository
             .findById(id)
-            .orElseThrow(() -> new UserNotFoundException(Constants.USER_NOT_FOUND + id));
+            .orElseThrow(() -> new UserNotFoundException(Constants.USER_NOT_FOUND_WITH_ID + id));
     if (userRequestDto.getUserName() != null) user.setUserName(userRequestDto.getUserName());
     if (userRequestDto.getEmail() != null) user.setEmail(userRequestDto.getEmail());
     User updatedUser = userRepository.save(user);
@@ -66,12 +66,30 @@ public class UserService {
 
   public void deleteUserById(Long id) {
     if (!userRepository.existsById(id))
-      throw new UserNotFoundException(Constants.USER_NOT_FOUND + id);
+      throw new UserNotFoundException(Constants.USER_NOT_FOUND_WITH_ID + id);
     userRepository.deleteById(id);
     logInfoWithId(id, "deleted");
   }
 
   public void logInfoWithId(Long id, String operation) {
     log.info("user with id {} {} successfully", id, operation);
+  }
+
+  public UserResponseDto getUserByUserName(String userName) {
+    if (userName == null || userName.isBlank())
+      throw new IllegalValueException("userName cannot be null or empty");
+    return userRepository
+        .findByUserName(userName)
+        .map(this::mapToUserResponseDto)
+        .orElseThrow(
+            () -> new UserNotFoundException(Constants.USER_NOT_FOUND_WITH_USERNAME + userName));
+  }
+
+  public List<UserResponseDto> findLikeUserName(String userName) {
+    if (userName == null || userName.isBlank())
+      throw new IllegalValueException("userName cannot be null or empty");
+    return userRepository.findLikeUserName(userName).stream()
+        .map(this::mapToUserResponseDto)
+        .toList();
   }
 }

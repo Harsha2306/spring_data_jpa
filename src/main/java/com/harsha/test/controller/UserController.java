@@ -30,6 +30,17 @@ public class UserController {
     return ResponseEntity.status(HttpStatus.OK).body(userResponseDto);
   }
 
+  @GetMapping("byUserName")
+  public ResponseEntity<UserResponseDto> getUserByUserName(@RequestParam String userName) {
+    return ResponseEntity.status(HttpStatus.OK).body(userService.getUserByUserName(userName));
+  }
+
+  @GetMapping("likeUserName")
+  public ResponseEntity<List<UserResponseDto>> getUserByLikeUserName(
+      @RequestParam String userName) {
+    return ResponseEntity.status(HttpStatus.OK).body(userService.findLikeUserName(userName));
+  }
+
   @PostMapping
   public ResponseEntity<UserResponseDto> createUser(@RequestBody UserRequestDto userRequestDto) {
     UserResponseDto savedUser = userService.createUser(userRequestDto);
@@ -45,7 +56,7 @@ public class UserController {
   public ResponseEntity<UserResponseDto> updateUser(
       @PathVariable Long id, @RequestBody UserRequestDto userRequestDto) {
     UserResponseDto updatedUser = userService.updateUser(id, userRequestDto);
-    return ResponseEntity.ok(updatedUser);
+    return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
   }
 
   @DeleteMapping("{id}")
